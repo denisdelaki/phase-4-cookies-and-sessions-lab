@@ -8,7 +8,16 @@ class ArticlesController < ApplicationController
 
   def show
     article = Article.find(params[:id])
-    render json: article
+    #If this is the first request this user has made, set session[:page_views] to an initial value of 0
+    session[:page_views] ||=0
+    #For every request to /articles/:id, increment the value of session[:page_views] by 1.
+    session[:page_views] +=1 
+    #If the user has viewed fewer than 3 pages, render a JSON response with the article data.
+    if session[:page_views]<4 
+      render json: article
+    else 
+     render json: {error: "Maximum pageview limit reached"}, status: :unauthorized
+    end
   end
 
   private
